@@ -16,6 +16,7 @@ export default function Input() {
     const { data } = useContext(ChatContext);
 
     const handleSend = async () => {
+        //handle image message
         if (img) {
             const storageRef = ref(storage, uuid());
 
@@ -40,14 +41,21 @@ export default function Input() {
                 }
             );
         } else {
-            await updateDoc(doc(db, "chats", data.chatId), {
-                messages: arrayUnion({
-                    id: uuid(),
-                    text,
-                    senderId: currentUser.uid,
-                    date: Timestamp.now(),
-                }),
-            });
+            // if text is null then don't update the message 
+            if(text === "") {
+                setText("");
+            } 
+            // else update the message
+            else {
+                await updateDoc(doc(db, "chats", data.chatId), {
+                    messages: arrayUnion({
+                        id: uuid(),
+                        text,
+                        senderId: currentUser.uid,
+                        date: Timestamp.now(),
+                    }),
+                });
+            }
         }
 
         await updateDoc(doc(db, "userChats", currentUser.uid), {
